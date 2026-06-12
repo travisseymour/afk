@@ -16,14 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from datetime import datetime, timedelta
 import random
 import time
 
 from pynput.mouse import Controller
 import typer
-
-"""AFK: Keep your Mac awake by periodically moving the mouse."""
-
+from yaspin import kbi_safe_yaspin
 
 app = typer.Typer(
     help="Keep your Mac awake by periodically moving the mouse a small amount.",
@@ -67,14 +66,26 @@ def main(
 ) -> None:
     """
     Periodically move the mouse to prevent the screen from sleeping.
-
     Press Ctrl+C to stop.
     """
     typer.echo(f"AFK running: moving mouse {pixels}px every {interval}s. Press Ctrl+C to stop.")
+
+    # NOTE: https://pypi.org/project/yaspin/
+
+    # try:
+    #     while True:
+    #         time.sleep(interval)
+    #         move_mouse(pixels)
+    # except KeyboardInterrupt:
+    #     typer.echo("\nAFK stopped.")
+
     try:
         while True:
-            time.sleep(interval)
-            move_mouse(pixels)
+            with kbi_safe_yaspin().bold.clock as sp:
+                next_move_time = datetime.now() + timedelta(seconds=interval)
+                sp.text = f"Next mouse move at {next_move_time.strftime('%I:%M:%S %p')}..."
+                time.sleep(interval)
+                move_mouse(pixels)
     except KeyboardInterrupt:
         typer.echo("\nAFK stopped.")
 
