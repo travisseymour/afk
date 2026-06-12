@@ -13,7 +13,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "afk"
 description = "Commandline utility to occasionally move the mouse when you are away from the keyboard, but want it to not sleep or time out."
-version = "2026.6.11.1"
+version = "2026.6.11.2"
 authors = [{name = "Travis L. Seymour, PhD", email = "nogard@ucsc.edu"}]
 license = {text = "GPLv3"}
 readme = "ReadMe.md"
