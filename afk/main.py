@@ -6,13 +6,13 @@ import platform
 import random
 import subprocess
 import time
+from typing import Annotated
 
-import typer
+import cyclopts
 from yaspin import kbi_safe_yaspin
 
-app = typer.Typer(
+app = cyclopts.App(
     help="Keep your computer awake (uses caffeinate on macOS, mouse movement on Linux).",
-    no_args_is_help=False,
 )
 
 IS_MACOS = platform.system() == "Darwin"
@@ -40,7 +40,7 @@ def move_mouse(pixels: int = 5) -> None:
 
 def run_caffeinate() -> None:
     """Run caffeinate -di to prevent display and idle sleep on macOS."""
-    typer.echo("AFK running: using caffeinate to prevent sleep. Press Ctrl+C to stop.")
+    print("AFK running: using caffeinate to prevent sleep. Press Ctrl+C to stop.")
     try:
         with kbi_safe_yaspin().bold.clock as sp:
             sp.text = "Keeping system awake with caffeinate -di..."
@@ -53,12 +53,12 @@ def run_caffeinate() -> None:
             process.wait()
     except KeyboardInterrupt:
         process.terminate()
-        typer.echo("\nAFK stopped.")
+        print("\nAFK stopped.")
 
 
 def run_mouse_mover(interval: int, pixels: int) -> None:
     """Run mouse mover loop for Linux."""
-    typer.echo(f"AFK running: moving mouse {pixels}px every {interval}s. Press Ctrl+C to stop.")
+    print(f"AFK running: moving mouse {pixels}px every {interval}s. Press Ctrl+C to stop.")
     try:
         while True:
             with kbi_safe_yaspin().bold.clock as sp:
@@ -67,23 +67,20 @@ def run_mouse_mover(interval: int, pixels: int) -> None:
                 time.sleep(interval)
                 move_mouse(pixels)
     except KeyboardInterrupt:
-        typer.echo("\nAFK stopped.")
+        print("\nAFK stopped.")
 
 
-@app.command()
+@app.default
 def main(
-    interval: int = typer.Option(
-        15,
-        "--interval",
-        "-i",
+    *,
+    interval: Annotated[int, cyclopts.Parameter(
+        name=["--interval", "-i"],
         help="Seconds between mouse movements (Linux only).",
-    ),
-    pixels: int = typer.Option(
-        5,
-        "--pixels",
-        "-p",
+    )] = 15,
+    pixels: Annotated[int, cyclopts.Parameter(
+        name=["--pixels", "-p"],
         help="Number of pixels to move the mouse (Linux only).",
-    ),
+    )] = 5,
 ) -> None:
     """
     Keep your computer awake.
